@@ -15,7 +15,7 @@ class KanbanPanesController < ApplicationController
 
   def states_left(kanban)
     used_states = []
-    states = KanbanState.find_all_by_tracker_id(kanban.tracker_id)
+    states = KanbanState.where(:tracker_id => kanban.tracker_id).all
     kanban.kanban_pane.each {|p| used_states << p.kanban_state}
     states = states.reject{|s| used_states.include?(s)}
   end
@@ -48,7 +48,7 @@ class KanbanPanesController < ApplicationController
     @project = Project.find(params[:project_id])
     @kanban = Kanban.find(params[:kanban_id])
     used_states = []
-    @states = KanbanState.find_all_by_tracker_id(@kanban.tracker_id)
+    @states = KanbanState.where(:tracker_id => @kanban.tracker_id).all
     @kanban.kanban_pane.each {|p| used_states << p.kanban_state if p.id != params[:id].to_i}
     @states = @states.reject{|s| used_states.include?(s)}
     @roles = Role.all

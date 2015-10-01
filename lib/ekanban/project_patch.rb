@@ -7,7 +7,7 @@ module EKanban
         base.send(:include, InstanceMethods)
 
         base.class_eval do
-          has_many :kanban
+has_many :kanban
         end
       end
 

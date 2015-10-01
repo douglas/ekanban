@@ -1,11 +1,13 @@
 class Kanban < ActiveRecord::Base
   unloadable
 
-  belongs_to  :project
-  belongs_to  :tracker
-  belongs_to  :creater, :foreign_key => :created_by, :class_name => :User
-  has_many  :kanban_pane, :order => "position ASC"
+belongs_to :project
+belongs_to :tracker
+belongs_to :creater, foreign_key: :created_by, class_name: :User
+has_many :kanban_pane, -> { order("position ASC") }
   validates_presence_of  :project_id, :tracker_id
+  # WARNING: Can't mass-assign protected attributes for KanbanState
+  attr_accessible :name, :tracker_id, :description, :is_valid
 
   before_destroy :delete_all_members
 
@@ -14,8 +16,8 @@ class Kanban < ActiveRecord::Base
   	project_id = project.nil? ? Project.current : project.is_a?(Project) ? project.id : project.to_i
   	where(:project_id => project_id)
   }
-  scope :by_tracker, lambda {|tracker| where(:tracker_id => tracker)}
-  scope :valid, lambda {where(:is_valid => true)}
+scope :by_tracker, lambda { |tracker| where(tracker_id: tracker) }
+scope :valid, -> { where(is_valid: true) }
 
   def self.to_id(kanban)
     kanban_id = kanban.nil? ? nil : kanban.is_a?(Kanban) ? kanban.id : kanban.to_i

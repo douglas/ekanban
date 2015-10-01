@@ -1,7 +1,7 @@
 class KanbanCardJournal < ActiveRecord::Base
 
-	belongs_to :kanban_card
-	belongs_to :issue_journal, :class_name => :Journal
+belongs_to :kanban_card
+belongs_to :issue_journal, class_name: :Journal
 	has_many :details, :foreign_key => "journal_id", :class_name => :KanbanCardJournalDetail, :dependent => :delete_all
 
 	def self.build(old_card,new_card,issue_journal)

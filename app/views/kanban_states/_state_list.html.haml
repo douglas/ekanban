@@ -3,7 +3,7 @@
 - trackers = Tracker.all
 - trackers.each do |t|
   %h3= "Tracker #{t.name}"
-  - states = KanbanState.find_all_by_tracker_id(t.id)
+  - states = KanbanState.where(:tracker_id => t.id).all
   - if !states.nil?
     %table{:id => "kanban_state_#{t.id}",:class => "list"}
       %thead

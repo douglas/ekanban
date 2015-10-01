@@ -5,8 +5,8 @@ module EKanban
         base.extend(ClassMethods)
         base.send(:include, InstanceMethods)
         base.class_eval do
-          has_many :issue_status_kanban_state
-          has_many :kanban_state, :through => :issue_status_kanban_state
+has_many :issue_status_kanban_state
+has_many :kanban_state, through: :issue_status_kanban_state
         end
       end
 

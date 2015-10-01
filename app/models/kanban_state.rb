@@ -1,13 +1,15 @@
 class KanbanState < ActiveRecord::Base
   unloadable
-  belongs_to :tracker
-  belongs_to :kanban_stage,  :foreign_key => :stage_id
-  has_many  :kanban_pane
-  has_many  :issue_status_kanban_state
-  has_many :issue_status, :through => :issue_status_kanban_state
+belongs_to :tracker
+belongs_to :kanban_stage, foreign_key: :stage_id
+has_many :kanban_pane
+has_many :issue_status_kanban_state
+has_many :issue_status, through: :issue_status_kanban_state
   validates_presence_of :tracker
   validates_presence_of :kanban_stage
   before_destroy :check_panes_and_issue_status
+  # WARNING: Can't mass-assign protected attributes for KanbanState
+  attr_accessible :name, :tracker_id, :stage_id, :is_default, :is_initial, :is_closed, :description
 
   def check_panes_and_issue_status
     count = KanbanPane.count(:all, :joins => :kanban, :conditions => ["#{Kanban.table_name}.is_valid = ? and kanban_state_id = ?",true, self.id])

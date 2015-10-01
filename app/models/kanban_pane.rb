@@ -1,11 +1,11 @@
 class KanbanPane < ActiveRecord::Base
   unloadable
 
-  belongs_to  :kanban_state
-  belongs_to  :kanban
-  belongs_to  :role
-  has_many    :kanban_card
-  has_many    :issue, :through=>:kanban_card, :order => "priority_id ASC, updated_on DESC, issue_id DESC"
+belongs_to :kanban_state
+belongs_to :kanban
+belongs_to :role
+has_many :kanban_card
+has_many :issue, -> { order("priority_id ASC, updated_on DESC, issue_id DESC") }, through: :kanban_card
 
   validates_presence_of :kanban_state
   before_destroy :check_cards_and_workflow
@@ -115,7 +115,7 @@ class KanbanPane < ActiveRecord::Base
       errors.add("","Cannot delete pane #{self.name}, #{count} cards still in this pane!")
     end
 
-    flows = KanbanWorkflow.find(:all, :conditions => ["(old_state_id = ? or new_state_id = ?) and kanban_id = ?", self.kanban_state.id, self.kanban_state.id, self.kanban.id])
+flows = KanbanWorkflow.where("(old_state_id = ? or new_state_id = ?) and kanban_id = ?", self.kanban_state.id, self.kanban_state.id, self.kanban.id)
     count = 0
     count = flows.size if !flows.nil?
     if count > 0

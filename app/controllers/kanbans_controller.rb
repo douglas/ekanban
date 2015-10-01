@@ -49,7 +49,7 @@ class KanbansController < ApplicationController
     #Get all kanbans's name
     @kanban_names = @kanbans.collect{|k| k.name}
     respond_to do |format|
-      format.html
+      format.html #index.html.erb
       format.js { render :partial => "index", :locals => {:view=>@view, :kanbans=>@Kanbans}}
       format.json { render :json => {:kanbans => @kanbans, 
                                      :teams => @principal, 
@@ -71,11 +71,11 @@ class KanbansController < ApplicationController
   def cards(pane_id)
     pane = KanbanPane.find(pane_id)
     if !@member.nil?
-       cards = KanbanCard.by_member(@member).joins(:priority).find(:all, :conditions => ["kanban_pane_id = ?",pane.id], :order => "#{Enumeration.table_name}.position ASC")
+cards = KanbanCard.by_member(@member).joins(:priority).where("kanban_pane_id = ?", pane.id).order("#{Enumeration.table_name}.position ASC")
     elsif !@principal.nil?
-       cards = KanbanCard.by_group(@principal).joins(:priority).find(:all, :conditions => ["kanban_pane_id = ?",pane.id], :order => "#{Enumeration.table_name}.position ASC")
+cards = KanbanCard.by_group(@principal).joins(:priority).where("kanban_pane_id = ?", pane.id).order("#{Enumeration.table_name}.position ASC")
     else
-       cards = KanbanCard.joins(:priority).find(:all, :conditions => ["kanban_pane_id = ?",pane.id], :order => "#{Enumeration.table_name}.position ASC")
+cards = KanbanCard.joins(:priority).where("kanban_pane_id = ?", pane.id).order("#{Enumeration.table_name}.position ASC")
     end
     cards
   end
@@ -115,7 +115,7 @@ class KanbansController < ApplicationController
   def new
     @kanban = Kanban.new
     @project = Project.find(params[:project_id])
-    @kanbans = Kanban.find_all_by_project_id(params[:project_id])
+    @kanbans = Kanban.where(:project_id => params[:project_id]).all
     if @kanbans.nil?
       @trackers = Tracker.all
       @copiable_kanbans = Kanbans.all
@@ -125,7 +125,7 @@ class KanbansController < ApplicationController
       @trackers = Tracker.all.reject {|t| used_trackers.include?(t)}
     end
 
-    @copiable_kanbans = Kanban.find(:all, :conditions => ["tracker_id in (?) and is_valid = ?", @trackers.select{|t| t.id}, true])
+@copiable_kanbans = Kanban.where("tracker_id in (?) and is_valid = ?", @trackers.select { |t| t.id }, true)
     @copiable_kanbans.each do |k|
 	   if k.project.nil?
 	      k.name += " - Deleted Project"
@@ -183,7 +183,7 @@ class KanbansController < ApplicationController
   def edit
     @project = Project.find(params[:project_id])
     @kanban = Kanban.find(params[:id])
-    @kanbans = Kanban.find_all_by_project_id(params[:project_id])
+    @kanbans = Kanban.where(:project_id => params[:project_id]).all
     @roles = Role.all
     if @kanbans.nil?
       @trackers = Tracker.all
@@ -210,8 +210,8 @@ class KanbansController < ApplicationController
   # create a new kanban by copying reference.
   def copy
     ref_kanban = Kanban.find(params[:ref_id])
-    ref_kanban_panes = KanbanPane.find_all_by_kanban_id(params[:ref_id])
-    ref_workflow = KanbanWorkflow.find_all_by_kanban_id(params[:ref_id])
+    ref_kanban_panes = KanbanPane.where(:kanban_id => params[:ref_id]).all
+    ref_workflow = KanbanWorkflow.where(:kanban_id => params[:ref_id]).all
 
     new_kanban = ref_kanban.dup
     new_kanban.project_id = params[:project_id]

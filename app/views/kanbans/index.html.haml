@@ -1,6 +1,6 @@
 .contextual
   %span Your current wip:
-  = link_to "#{User.current.wip} ", my_page_path(), :id => "my-wip"
+  = link_to "#{User.current.wip} ", my_page_path(), :id =>  "my-wip"
   %span  Limit:
   = link_to "#{User.current.wip_limit} ", edit_user_path(User.current.id), :id => "my-wip-limit"
   = link_to l(:label_kanban_new), new_project_kanban_path(@project.id), :class => 'icon icon-add'

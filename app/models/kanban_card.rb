@@ -1,12 +1,12 @@
 class KanbanCard < ActiveRecord::Base
   unloadable
-  belongs_to :issue
-  belongs_to :developer, :class_name => :User
-  belongs_to :verifier,  :class_name => :User
-  belongs_to :kanban_pane, :class_name => :KanbanPane
-  has_many :issue_journals, :through => :issue, :source => :journals
-  has_one :priority, :through => :issue, :source => :priority
-  has_many :kanban_card_journals
+belongs_to :issue
+belongs_to :developer, class_name: :User
+belongs_to :verifier, class_name: :User
+belongs_to :kanban_pane, class_name: :KanbanPane
+has_many :issue_journals, through: :issue, source: :journals
+has_one :priority, through: :issue, source: :priority
+has_many :kanban_card_journals
 
   scope :by_group, lambda {|group|
     return if group.nil?
@@ -23,9 +23,9 @@ class KanbanCard < ActiveRecord::Base
     {:conditions => ["kanban_pane_id=?", pane_id]}
   }
 
-  scope :by_user, lambda {|user|
+  scope :by_user, -> user {
     user_id = User.to_id(user)
-    {:conditions => ["#{Issue.table_name}.assigned_to_id=?", user_id], :include => :issue}
+    -> { where("#{Issue.table_name}.assigned_to_id=?", user_id).includes(:issue).requires(:issue) }
   }
 
   scope :by_member, lambda {|member|
@@ -53,7 +53,7 @@ class KanbanCard < ActiveRecord::Base
   scope :open, lambda {|*args|
     is_closed = args.size > 0 ? !args.first : false
     is_closed_id = IssueStatus.closed_id;
-    {:conditions => ["#{Issue.table_name}.status_id #{is_closed ? "" : "!"}= ?", is_closed_id], :include => [:issue]}
+    -> { where("#{Issue.table_name}.status_id #{is_closed ? "" : "!"}= ?", is_closed_id).includes(:issue) }
   }
 
   def in_progress?(roles)

@@ -4,7 +4,11 @@ class KanbanReportsController < ApplicationController
 		#get the users in a group according to project.
 		group = (group == nil? || group == "0") ? nil : Group.to_group(group)
 		project = (project == nil? || project == "0") ? nil : Project.to_project(project)
-		users = group.nil? ? User.find(:all, :conditions => ["lastname != 'Admin' and lastname !='Anonymous'"]) : User.in_group(group)
+users = if group.nil? then
+  User.where("lastname != 'Admin' and lastname !='Anonymous'")
+else
+  User.in_group(group)
+end
 		if project
 			users.reject! {|u| !u.member_of?(project)}
 		end
@@ -14,8 +18,8 @@ class KanbanReportsController < ApplicationController
 	def index
 		puts params
 		@groups = Group.all
-		@projects = Project.find_all_by_is_public_and_status(true,1)
-		@kanbans =  Kanban.find_all_by_is_valid(true)
+		@projects = Project.where("is_public = ? AND status = ?", true,1).all
+		@kanbans =  Kanban.where(:is_valid => true).all
 		@members = User.all
 
 		@project = Project.find(params[:project_id]) if !params[:project_id].nil? and params[:project_id]!="0"
@@ -138,7 +142,7 @@ class KanbanReportsController < ApplicationController
 	def statuses(stage_name)
 		stage = KanbanStage.find_by_name(stage_name)
 		states = []
-		states = KanbanState.find_all_by_stage_id(stage.id) if !states.nil?
+		states = KanbanState.where(:stage_id => stage.id).all if !states.nil?
 		statuses = states.map {|s| IssueStatusKanbanState.status_id(s.id)}.uniq
 		return statuses
 	end

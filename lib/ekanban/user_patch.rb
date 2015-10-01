@@ -29,13 +29,15 @@ module EKanban
         end
 
         def wip
-          KanbanCard.open().by_user(self).in_progress().size
+          #KanbanCard.open().by_user(self).in_progress().size
+          return 0
         end
 
         def wip_limit
-          id = CustomField.find_by_name("WIP limit").id
-          v = self.custom_value_for(id)
-          v.nil? ? 3 : v.value.to_i
+          #id = CustomField.find_by_name("WIP limit").id
+          #v = self.custom_value_for(id)
+          #v.nil? ? 3 : v.value.to_i
+	  return 0
         end
       end
     end

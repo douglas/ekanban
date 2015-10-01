@@ -1,7 +1,7 @@
 - statuses = IssueStatus.all
 - maps = IssueStatusKanbanState.all
 %h3= "Tracker: #{tracker.name}"
-- states = KanbanState.find_all_by_tracker_id(tracker.id)
+- states = KanbanState.where(:tracker_id => tracker.id).all
 - if !states.nil?
   %table{:id => "kanban_workflow_table",:class => "list"}
     %thead
